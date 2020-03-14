@@ -7,7 +7,7 @@ const Pais = mongoose.model('Pais');
 
 const superheroeSchema = new Schema({
   nombre: { type: String },
-  pais: { type: Schema.ObjectId, ref: "Pais" }
+  pais: String
 });
 
 module.exports = mongoose.model('Superheroe', superheroeSchema);
