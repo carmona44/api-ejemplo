@@ -2,19 +2,31 @@
 
 const Superheroe = require('../models/superheroes');
 const Pais = require('../models/paises');
+const paginasPredef = {
+    pagina: 0,
+    limite: 5
+};
 
 function getSuperheroes(req, res){
-    Superheroe.find({}, (err, superheroes) => {
-        if(err){
-            res.status(500).send({message: `Error al obtener los superheroes: ${err}`});
-        } else if (!superheroes) {
-            res.status(404).send({message: 'No hay superheroes'});
-        } else {
-            Pais.populate(superheroes, {path: "pais"}, (err, superheroes) => {
-                res.status(200).send({ superheroes });
-            })
-        }
-    });
+    const paginacion = {
+        pagina: req.query.page || paginasPredef.pagina,
+        limite: req.query.limit || paginasPredef.limite
+    };
+
+    Superheroe.find()
+                .skip(paginacion.pagina * paginacion.limite)
+                .limit(paginacion.limite)
+                .exec((err, superheroes) => {
+                    if(err){
+                        res.status(500).send({message: `Error al obtener los superheroes: ${err}`});
+                    } else if (!superheroes) {
+                        res.status(404).send({message: 'No hay superheroes'});
+                    } else {
+                        Pais.populate(superheroes, {path: "pais"}, (err, superheroes) => {
+                            res.status(200).send({ superheroes });
+                        })
+                    }
+                });
 }
 
 function getSuperheroe(req, res){

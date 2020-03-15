@@ -3,17 +3,29 @@
 const Pais = require('../models/paises');
 const Superheroe = require('../models/superheroes');
 const haversine = require('haversine');
+const paginasPredef = {
+    pagina: 0,
+    limite: 5
+};
 
 function getPaises(req, res){
-    Pais.find({}, (err, paises) => {
-        if(err){
-            res.status(500).send({message: `Error al obtener los paises: ${err}`});
-        } else if (!paises) {
-            res.status(404).send({message: 'No hay paises'});
-        } else {
-            res.status(200).send({ paises });
-        }
-    });
+    const paginacion = {
+        pagina: req.query.page || paginasPredef.pagina,
+        limite: req.query.limit || paginasPredef.limite
+    };
+
+    Pais.find()
+        .skip(paginacion.pagina * paginacion.limite)
+        .limit(paginacion.limite)
+        .exec((err, paises) => {
+            if(err){
+                res.status(500).send({message: `Error al obtener los paises: ${err}`});
+            } else if (!paises) {
+                res.status(404).send({message: 'No hay paises'});
+            } else {
+                res.status(200).send({ paises });
+            }
+        });
 }
 
 function getPais(req, res){
@@ -58,9 +70,6 @@ function deletePais(req, res){
 }
 
 function savePais(req, res){
-    console.log('POST /api/pais');
-    console.log(req.body);
-
     let pais = new Pais();
     pais.nombre = req.body.nombre;
     pais.latitud = req.body.latitud;
@@ -76,22 +85,30 @@ function savePais(req, res){
 }
 
 function getSuperHPais(req, res){
+    const paginacion = {
+        pagina: req.query.page || paginasPredef.pagina,
+        limite: req.query.limit || paginasPredef.limite
+    };
     let paisId = req.params.paisId;
+
     Pais.findById(paisId, (err, p) => {
         if(err){
             res.status(500).send({message: `Error al obtener el pais: ${err}`});
         } else if (!p) {
             res.status(404).send({message: 'El pais no existe'});
         } else {
-            Superheroe.find({pais: paisId}, (err, superheroes) => {
-                if(err){
-                    res.status(500).send({message: `Error al obtener los superheroes: ${err}`});
-                } else if (!superheroes) {
-                    res.status(404).send({message: `No hay superheroes para el pais ${p.nombre}`});
-                } else {
-                    res.status(200).send({ pais: p, superheroes: superheroes });
-                }
-            });
+            Superheroe.find({pais: paisId})
+                        .skip(paginacion.pagina * paginacion.limite)
+                        .limit(paginacion.limite)
+                        .exec((err, superheroes) => {
+                            if(err){
+                                res.status(500).send({message: `Error al obtener los superheroes: ${err}`});
+                            } else if (!superheroes) {
+                                res.status(404).send({message: `No hay superheroes para el pais ${p.nombre}`});
+                            } else {
+                                res.status(200).send({ pais: p, superheroes: superheroes });
+                            }
+                        });
         }
     });
 }
