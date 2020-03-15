@@ -2,6 +2,7 @@
 
 const Pais = require('../models/paises');
 const Superheroe = require('../models/superheroes');
+const haversine = require('haversine');
 
 function getPaises(req, res){
     Pais.find({}, (err, paises) => {
@@ -95,11 +96,44 @@ function getSuperHPais(req, res){
     });
 }
 
+function getPaisesOrdenadosLl(req, res){
+    let lat = req.params.latitud;
+    let long = req.params.longitud;
+    let paisParam = {
+        latitude: lat,
+        longitude: long
+    };
+
+    Pais.find({}, (err, paises) => {
+        if(err){
+            res.status(500).send({message: `Error al obtener los paises: ${err}`});
+        } else if (!paises) {
+            res.status(404).send({message: 'No hay paises'});
+        } else {
+            res.status(200).send({ paises: paises.sort((a, b) => {
+                    let paisA = {
+                        latitude: a.latitud,
+                        longitude: a.longitud
+                    };
+
+                    let paisB = {
+                        latitude: b.latitud,
+                        longitude: b.longitud
+                    };
+
+                    return haversine(paisParam, paisA) - haversine(paisParam, paisB);
+                }) 
+            });
+        }
+    });
+}
+
 module.exports = {
     getPaises,
     getPais,
     updatePais,
     deletePais,
     savePais,
-    getSuperHPais
+    getSuperHPais,
+    getPaisesOrdenadosLl
 }
