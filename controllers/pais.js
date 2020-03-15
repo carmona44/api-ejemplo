@@ -1,6 +1,7 @@
 'use strict'
 
 const Pais = require('../models/paises');
+const Superheroe = require('../models/superheroes');
 
 function getPaises(req, res){
     Pais.find({}, (err, paises) => {
@@ -73,10 +74,32 @@ function savePais(req, res){
     });
 }
 
+function getSuperHPais(req, res){
+    let paisId = req.params.paisId;
+    Pais.findById(paisId, (err, p) => {
+        if(err){
+            res.status(500).send({message: `Error al obtener el pais: ${err}`});
+        } else if (!p) {
+            res.status(404).send({message: 'El pais no existe'});
+        } else {
+            Superheroe.find({pais: paisId}, (err, superheroes) => {
+                if(err){
+                    res.status(500).send({message: `Error al obtener los superheroes: ${err}`});
+                } else if (!superheroes) {
+                    res.status(404).send({message: `No hay superheroes para el pais ${p.nombre}`});
+                } else {
+                    res.status(200).send({ pais: p, superheroes: superheroes });
+                }
+            });
+        }
+    });
+}
+
 module.exports = {
     getPaises,
     getPais,
     updatePais,
     deletePais,
-    savePais
+    savePais,
+    getSuperHPais
 }

@@ -17,4 +17,6 @@ api.post('/superheroe', superheroeController.saveSuperheroe);
 api.put('/superheroe/:superheroeId', superheroeController.updateSuperheroe);
 api.delete('/superheroe/:superheroeId', superheroeController.deleteSuperheroe);
 
+api.get('/pais/:paisId/superheroe', paisController.getSuperHPais);
+
 module.exports = api;

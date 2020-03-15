@@ -1,6 +1,7 @@
 'use strict'
 
 const Superheroe = require('../models/superheroes');
+const Pais = require('../models/paises');
 
 function getSuperheroes(req, res){
     Superheroe.find({}, (err, superheroes) => {
@@ -9,7 +10,9 @@ function getSuperheroes(req, res){
         } else if (!superheroes) {
             res.status(404).send({message: 'No hay superheroes'});
         } else {
-            res.status(200).send({ superheroes });
+            Pais.populate(superheroes, {path: "pais"}, (err, superheroes) => {
+                res.status(200).send({ superheroes });
+            })
         }
     });
 }
