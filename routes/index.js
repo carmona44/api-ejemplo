@@ -3,6 +3,7 @@
 const express = require('express');
 const paisController = require('../controllers/pais');
 const superheroeController = require('../controllers/superheroe');
+const loginController = require('../controllers/login');
 const api = express.Router();
 
 //CRUD paises
@@ -25,5 +26,8 @@ api.get('/pais/:paisId/superheroe', paisController.getSuperHPais);
 
 //Listado de paises ordenados por distancia a un punto pasado por parametros
 api.get('/pais/:latitud/:longitud', paisController.getPaisesOrdenadosLl);
+
+//Login
+api.post('/login', loginController.getToken);
 
 module.exports = api;
